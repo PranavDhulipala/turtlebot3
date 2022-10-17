@@ -29,11 +29,15 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
-    LDS_MODEL = os.environ['LDS_MODEL']
+    TURTLEBOT3_MODEL = os.getenv('TURTLEBOT3_MODEL', 'burger')
+    LDS_MODEL = os.getenv('LDS_MODEL', 'LDS-01')
     LDS_LAUNCH_FILE = '/hlds_laser.launch.py'
 
-    usb_port = LaunchConfiguration('usb_port', default='/dev/ttyACM0')
+    usb_port = LaunchConfiguration('usb_port', default='COM3')
+
+    baud_rate = LaunchConfiguration('baud_rate', default=115200)
+
+    lidar_port = 'COM4'
 
     tb3_param_dir = LaunchConfiguration(
         'tb3_param_dir',
@@ -68,6 +72,11 @@ def generate_launch_description():
             'usb_port',
             default_value=usb_port,
             description='Connected USB port with OpenCR'),
+        
+        DeclareLaunchArgument(
+            'baud_rate',
+            default_value=baud_rate,
+            description='Setting baudrate to 115200'),
 
         DeclareLaunchArgument(
             'tb3_param_dir',
@@ -82,13 +91,13 @@ def generate_launch_description():
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([lidar_pkg_dir, LDS_LAUNCH_FILE]),
-            launch_arguments={'port': '/dev/ttyUSB0', 'frame_id': 'base_scan'}.items(),
+            launch_arguments={'port': lidar_port, 'frame_id': 'base_scan'}.items(),
         ),
 
         Node(
             package='turtlebot3_node',
             executable='turtlebot3_ros',
             parameters=[tb3_param_dir],
-            arguments=['-i', usb_port],
+            arguments=['-i', usb_port, '-p', baud_rate],
             output='screen'),
     ])

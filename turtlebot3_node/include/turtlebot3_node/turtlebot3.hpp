@@ -69,14 +69,14 @@ public:
     float profile_acceleration;
   } Motors;
 
-  explicit TurtleBot3(const std::string & usb_port);
+  explicit TurtleBot3(const std::string & usb_port, const int & baud_rate);
   virtual ~TurtleBot3() {}
 
   Wheels * get_wheels();
   Motors * get_motors();
 
 private:
-  void init_dynamixel_sdk_wrapper(const std::string & usb_port);
+  void init_dynamixel_sdk_wrapper(const std::string & usb_port, const int & baud_rate);
   void check_device_status();
 
   void add_sensors();

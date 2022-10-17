@@ -28,9 +28,11 @@ void help_print()
 {
   printf("For turtlebot3 node : \n");
   printf("turtlebot3_node [-i usb_port] [-h]\n");
+  printf("turtlebot3_node [-p baud_rate] [-h]\n");
   printf("options:\n");
   printf("-h : Print this help function.\n");
   printf("-i usb_port: Connected USB port with OpenCR.");
+  printf("-p baud_rate: Connected with baud_rate of 115200.");
 }
 
 int main(int argc, char * argv[])
@@ -51,9 +53,16 @@ int main(int argc, char * argv[])
     usb_port = std::string(cli_options);
   }
 
+  int baud_rate = 115200;
+  cli_options = rcutils_cli_get_option(argv, argv + argc, "-p");
+  if (nullptr != cli_options) {
+    baud_rate = std::stoi(cli_options);
+  }
+
+
   rclcpp::executors::SingleThreadedExecutor executor;
 
-  auto turtlebot3 = std::make_shared<robotis::turtlebot3::TurtleBot3>(usb_port);
+  auto turtlebot3 = std::make_shared<robotis::turtlebot3::TurtleBot3>(usb_port, baud_rate);
   auto diff_drive_controller =
     std::make_shared<robotis::turtlebot3::DiffDriveController>(
     turtlebot3->get_wheels()->separation,

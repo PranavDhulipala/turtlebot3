@@ -22,13 +22,13 @@
 using robotis::turtlebot3::TurtleBot3;
 using namespace std::chrono_literals;
 
-TurtleBot3::TurtleBot3(const std::string & usb_port)
+TurtleBot3::TurtleBot3(const std::string & usb_port, const int & baud_rate)
 : Node("turtlebot3_node", rclcpp::NodeOptions().use_intra_process_comms(true))
 {
   RCLCPP_INFO(get_logger(), "Init TurtleBot3 Node Main");
   node_handle_ = std::shared_ptr<::rclcpp::Node>(this, [](::rclcpp::Node *) {});
 
-  init_dynamixel_sdk_wrapper(usb_port);
+  init_dynamixel_sdk_wrapper(usb_port, baud_rate);
   check_device_status();
 
   add_motors();
@@ -49,16 +49,16 @@ TurtleBot3::Motors * TurtleBot3::get_motors()
   return &motors_;
 }
 
-void TurtleBot3::init_dynamixel_sdk_wrapper(const std::string & usb_port)
+void TurtleBot3::init_dynamixel_sdk_wrapper(const std::string & usb_port, const int & baud_rate)
 {
-  DynamixelSDKWrapper::Device opencr = {usb_port, 200, 1000000, 2.0f};
+  DynamixelSDKWrapper::Device opencr = {usb_port, 200, baud_rate, 2.0f};
 
   this->declare_parameter<uint8_t>("opencr.id");
-  this->declare_parameter<int>("opencr.baud_rate");
+  // this->declare_parameter<int>("opencr.baud_rate");
   this->declare_parameter<float>("opencr.protocol_version");
 
   this->get_parameter_or<uint8_t>("opencr.id", opencr.id, 200);
-  this->get_parameter_or<int>("opencr.baud_rate", opencr.baud_rate, 1000000);
+  // this->get_parameter_or<int>("opencr.baud_rate", opencr.baud_rate, 1000000);
   this->get_parameter_or<float>("opencr.protocol_version", opencr.protocol_version, 2.0f);
 
   RCLCPP_INFO(this->get_logger(), "Init DynamixelSDKWrapper");
